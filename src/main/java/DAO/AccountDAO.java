@@ -20,7 +20,7 @@ public class AccountDAO {
         String sql = "INSERT INTO accounts (username, password) VALUES (?, ?)";
         
         try {
-            PreparedStatement ps = conn.prepareStatement(sql)
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
             
@@ -46,7 +46,7 @@ public class AccountDAO {
         String sql = "SELECT * FROM accounts WHERE username = ?";
         
         try {
-            PreparedStatement ps = conn.prepareStatement(sql)
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, username);
             
             ResultSet rs = ps.executeQuery();
@@ -72,7 +72,7 @@ public class AccountDAO {
         String sql = "SELECT * FROM accounts WHERE account_id = ?";
         
         try {
-            PreparedStatement ps = conn.prepareStatement(sql)
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, accountId);
             
             ResultSet rs = ps.executeQuery();
@@ -99,7 +99,7 @@ public class AccountDAO {
         String sql = "SELECT * FROM accounts WHERE username = ? AND password = ?";
         
         try {
-            PreparedStatement ps = conn.prepareStatement(sql)
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, username);
             ps.setString(2, password);
             
