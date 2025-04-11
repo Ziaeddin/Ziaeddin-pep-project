@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Model.Account;
-import Service.AccountService;
+import Model.Message;
+import Service.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -21,10 +22,12 @@ public class SocialMediaController {
      */
 
     AccountService accountService;
+    MessageService msgService;
     ObjectMapper mapper;
 
     public SocialMediaController(){
         this.accountService = new AccountService();
+        this.msgService = new MessageService();
         this.mapper = new ObjectMapper();
     }
 
@@ -35,6 +38,7 @@ public class SocialMediaController {
         app.post("/login", this::loginHandler);
 
         //Message Endpoints
+        app.post("/messages", this::createMessagehandler);
 
         return app;
     }
@@ -56,7 +60,7 @@ public class SocialMediaController {
         }
     }
 
-       /**
+    /**
      * This is an example handler for an example endpoint.
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
@@ -69,6 +73,23 @@ public class SocialMediaController {
             ctx.json(mapper.writeValueAsString(loggedInAccount));
         } else {
             ctx.status(401);
+        }
+    }
+
+
+    /**
+     * This is an example handler for an example endpoint.
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void createMessagehandler(Context ctx) throws JsonProcessingException{
+        Message message = mapper.readValue(ctx.body(), Message.class);
+        Message createdMessage = this.msgService.createMessage(message);
+        
+        if (createdMessage != null) {
+            ctx.json(mapper.writeValueAsString(createdMessage));
+        } else {
+            ctx.status(400);
         }
     }
 
