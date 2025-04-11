@@ -1,9 +1,6 @@
 package DAO;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
 
 import Model.Account;
 import Util.ConnectionUtil;
@@ -15,23 +12,23 @@ public class AccountDAO {
      * @param account Account to be created
      * @return The created account with its generated ID
      */
-    public Account createAccount(Account account) throws Exception {
+    public Account createAccount(Account account) {
         Connection conn = ConnectionUtil.getConnection();
-        String sql = "INSERT INTO accounts (username, password) VALUES (?, ?)";
+        String sql = "INSERT INTO account (username, password) VALUES (?, ?)";
         
         try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
-            
-            ResultSet rs = ps.executeQuery();
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                int generatedId = rs.getInt(1);
+                int generatedId = (int)rs.getLong(1);
                 account.setAccount_id(generatedId);
                 return account;
             }
         }catch(SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -41,9 +38,9 @@ public class AccountDAO {
      * @param username The username to search for
      * @return The found account or null if none exists
      */
-    public Account getAccountByUsername(String username) throws SQLException {
+    public Account getAccountByUsername(String username) {
         Connection conn = ConnectionUtil.getConnection();
-        String sql = "SELECT * FROM accounts WHERE username = ?";
+        String sql = "SELECT * FROM account WHERE username = ?";
         
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -57,7 +54,7 @@ public class AccountDAO {
                 return new Account(accountId, username, password);
             }
         }catch(SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -67,9 +64,9 @@ public class AccountDAO {
      * @param accountId The account ID to search for
      * @return The found account or null if none exists
      */
-    public Account getAccountById(int accountId) throws SQLException {
+    public Account getAccountById(int accountId) {
         Connection conn = ConnectionUtil.getConnection();
-        String sql = "SELECT * FROM accounts WHERE account_id = ?";
+        String sql = "SELECT * FROM account WHERE account_id = ?";
         
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -83,7 +80,7 @@ public class AccountDAO {
                 return new Account(accountId, username, password);
             }
         }catch(SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -94,9 +91,9 @@ public class AccountDAO {
      * @param password The password
      * @return The found account or null if credentials don't match
      */
-    public Account getAccountByCredentials(String username, String password) throws SQLException {
+    public Account getAccountByCredentials(String username, String password) {
         Connection conn = ConnectionUtil.getConnection();
-        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
         
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -109,7 +106,7 @@ public class AccountDAO {
                 return new Account(accountId, username, password);
             }
         }catch(SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
