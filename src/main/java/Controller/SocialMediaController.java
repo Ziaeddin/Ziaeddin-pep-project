@@ -39,13 +39,18 @@ public class SocialMediaController {
 
         //Message Endpoints
         app.post("/messages", this::createMessagehandler);
+        app.get("/messages", this::getAllMsgsHandler);
+        app.get("/messages/{message_id}", this::getMsgByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMsgHandler);
+        app.patch("/messages/{message_id}", this::updateMsgHandler);
+        app.get("/accounts/{account_id}/messages", this::getMsgsByUser);
 
         return app;
     }
 
 
     /**
-     * This is an example handler for an example endpoint.
+     * register new account
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
      */
@@ -54,14 +59,14 @@ public class SocialMediaController {
         Account registeredAccount = accountService.register(account);
         
         if (registeredAccount != null) {
-            ctx.json(mapper.writeValueAsString(registeredAccount));
+            ctx.json(registeredAccount);
         } else {
             ctx.status(400);
         }
     }
 
     /**
-     * This is an example handler for an example endpoint.
+     * login
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
      */
@@ -70,7 +75,7 @@ public class SocialMediaController {
         Account loggedInAccount = accountService.login(account);
         
         if (loggedInAccount != null) {
-            ctx.json(mapper.writeValueAsString(loggedInAccount));
+            ctx.json(loggedInAccount);
         } else {
             ctx.status(401);
         }
@@ -78,7 +83,7 @@ public class SocialMediaController {
 
 
     /**
-     * This is an example handler for an example endpoint.
+     * add message
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
      */
@@ -87,10 +92,81 @@ public class SocialMediaController {
         Message createdMessage = this.msgService.createMessage(message);
         
         if (createdMessage != null) {
-            ctx.json(mapper.writeValueAsString(createdMessage));
+            ctx.json(createdMessage);
         } else {
             ctx.status(400);
         }
+    }
+
+    /**
+     * get all messages
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void getAllMsgsHandler(Context ctx) {
+        ctx.json(this.msgService.getAllMessages());
+    }
+
+
+    /**
+     * get a message by id
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void getMsgByIdHandler(Context ctx){
+        int msgId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = this.msgService.getMessageById(msgId);
+
+        if (message != null) {
+            ctx.json(message);
+        } else {
+            ctx.json(""); 
+        }
+
+    }
+
+    /**
+     * delete a message by id
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void deleteMsgHandler(Context ctx) {
+        int msgId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message deletedMessage = this.msgService.deleteMessageById(msgId);
+        
+        if (deletedMessage != null) {
+            ctx.json(deletedMessage);
+        } else {
+            ctx.json(""); 
+        }
+    }
+
+    /**
+     * update message_text for a message by id
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void updateMsgHandler(Context ctx) throws JsonProcessingException {
+        int msgId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = mapper.readValue(ctx.body(), Message.class);
+
+        Message updatedMessage = msgService.updateMessageText(msgId, message.getMessage_text());
+        
+        if (updatedMessage != null) {
+            ctx.json(updatedMessage);
+        } else {
+            ctx.status(400);
+        }
+    }
+
+    /**
+     * get all messages by user
+     * @param context The Javalin Context object manages information about both the HTTP request and response.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void getMsgsByUser(Context ctx) {
+        int accountId = Integer.parseInt(ctx.pathParam("account_id"));
+        ctx.json(this.msgService.getMessagesByAccount(accountId));
     }
 
 }
